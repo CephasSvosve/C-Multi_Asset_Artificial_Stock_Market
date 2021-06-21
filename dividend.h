@@ -37,14 +37,11 @@ public:
 
 
 
-
-
-    //here we create getters to access private parameters for dividend computation
+    //we create getters to access private parameters for dividend computation
 
 
     //parameters of all different assets are stored in the same vector,
     //int tickerID is an index that we use to locate a particular asset's parameter within that vector
-
 
 
     double getGrowthRate(int tickerID);
@@ -54,10 +51,8 @@ public:
 
 
 
-
-
-    //here we create setters to set parameters of the dividend process
-    // x is the value observed from empirical data for the parameter
+    //we create setters to set parameters of the dividend process
+    //x is the value observed from empirical data for the parameter
 
 
     void setGrowthRate(double x);
@@ -75,13 +70,11 @@ public:
 
 
 
+ /***************************************************************************************************/
+ //we create essential tools for Noise generation
+ /***************************************************************************************************/
 
-
-
-
-    //------------------------------------------------------------------------------//
-    //we create essential tools for Noise generation
-
+    
     double corrcoef(VectorXd x, VectorXd y);
     double lateralcorrcoef(VectorXd a);
     MatrixXd crossCorr(MatrixXd x);
@@ -89,10 +82,8 @@ public:
 
 
 
-
-
-    //we create the noise generator - *see .cpp file for further notes
-
+    //we create the noise generator - *see .cpp file for further notes on this
+    
     MatrixXd generateWhiteNoise(int numOfAssets, int numOfTicks);
 
 
@@ -127,13 +118,9 @@ public:
 
 
 
-
     //Noise generation point
 
     MatrixXd generateColoredNoise(int numOfAssets, int numOfTicks);
-//-----------------------------------------------------------------------//
-
-
 
 
 };
