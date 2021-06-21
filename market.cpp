@@ -44,7 +44,7 @@ int main(){
 
 
 
-    //we create a market watch- all objects refer theire time stamp from watch to maintain sychrony
+    //we create a market watch- all objects refer their time-stamp from watch to maintain synchrony
     Watch clock;
     clock.setDt(1.0);
 
