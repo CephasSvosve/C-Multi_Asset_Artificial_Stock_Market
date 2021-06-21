@@ -32,7 +32,7 @@ double Div::getVolatility(int tickerID)
 
 
 
-
+//we retrieve the autocorrelation of a particular asset by this function
 
 double Div::getAutoCorr(int tickerID)
 {
@@ -43,6 +43,7 @@ double Div::getAutoCorr(int tickerID)
 
 
 
+//this is a setter for the average growth rate of an asset's growth rate
 
 void Div::setGrowthRate(double x)
 {
@@ -53,6 +54,7 @@ void Div::setGrowthRate(double x)
 
 
 
+//this is a setter for saving the volatility of an asset's dividend process
 
 void Div::setVolatility(double x)
 {
@@ -61,6 +63,9 @@ void Div::setVolatility(double x)
 
 
 
+
+
+//this is a setter for saving the auto-correlation of an asset's dividend process
 
 void Div::setAutoCorr(double x)
 {
@@ -71,15 +76,12 @@ void Div::setAutoCorr(double x)
 
 
 
+//work-in-progress-*the function is meant to retrieve the cross-sectional correlation from the market object 
+
 void Div::setCrossCorr()
 {
-
-
-
-   // std::cout <<  "Div " << crossCorrMat << std::endl;
+ // std::cout <<  "Div " << crossCorrMat << std::endl;
 }
-
-
 
 
 
@@ -94,24 +96,18 @@ void Div::setCrossCorr()
 MatrixXd Div::generateWhiteNoise(int numOfAssets, int numOfTicks)
 {
 
-
-
     MatrixXd randoms(numOfAssets,numOfTicks);
     VectorXd a;
 
 
 
-
-
-    //algorithm for generating random numbers that are seeded on changing time
+    //algorithm for generating random numbers that are shuffled continuously through seeding them on time
 
     time_t now = time(0);
     boost::random::mt19937 gen{static_cast<uint32_t>(now)};
     boost::normal_distribution<> nd(0.0, clock.getDt());
     boost::variate_generator<boost::mt19937&,
     boost::normal_distribution<> > var_nor(gen, nd);
-
-
 
 
 
