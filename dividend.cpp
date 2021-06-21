@@ -116,19 +116,16 @@ MatrixXd Div::generateWhiteNoise(int numOfAssets, int numOfTicks)
     for(int rw=0; rw < numOfAssets; rw++)
     {
 
-
-
+     
         //we make sure the naturally occurring auto-correlation is sufficiently small by using a do-while loop
-
-        do
+        
+     do
         {
-
-
-            //here we load each row with appropriate random numbers
-
+            //here we load each row with appropriate vector of random numbers
             a = VectorXd(numOfTicks);
+      
+      
             for(int i = 0; i < numOfTicks; ++i)
-
             {
                 a(i) = var_nor();
             }
@@ -140,8 +137,6 @@ MatrixXd Div::generateWhiteNoise(int numOfAssets, int numOfTicks)
         randoms.row(rw) = a;
 
     }
-
-
 
 
     //We then remove any cross-sectional correlation
@@ -172,41 +167,18 @@ MatrixXd Div::verticallyWhiten(MatrixXd mx)
 
 
 
-MatrixXd Div::verticallyColor(MatrixXd x){}
-
-VectorXd Div::laterallyColor(VectorXd x){}
-
-VectorXd Div::standardize(VectorXd x){}
-
-
-
-
-MatrixXd Div::generateColoredNoise(int numOfAssets, int numOfTicks)
-{
-    MatrixXd X = generateWhiteNoise(numOfAssets, numOfTicks);
-    MatrixXd Y = verticallyWhiten(X);
-
-
-    //vector<double> lC = laterallyColor(Y(0:));
-}
-
-
-
-
-
-
 //this function calculates the coefficient of determination -correlation- between two vectors
 //it requires the two vectors x and y, then computes the variables required for the formula
 //i.e. variables xx = x^2  ,xy = x*y  and yy = y^2
+
+
 
 double Div::corrcoef(VectorXd x, VectorXd y)
 {
     if(x.size() == y.size()) {
 
         int n = x.size();
-
-
-
+     
 
         //variable xx represents x^2
 
@@ -216,12 +188,10 @@ double Div::corrcoef(VectorXd x, VectorXd y)
 
 
 
-
         //sumx is the sum of random variables x
 
         double sumx = x.sum();
         double sumy = y.sum();
-
 
 
 
@@ -233,39 +203,41 @@ double Div::corrcoef(VectorXd x, VectorXd y)
 
 
 
-        for (int i=0; i < x.size(); i++) {
-
-
+        for (int i=0; i < x.size(); i++) 
+        {
             xx[i] = pow(x[i],2);
             xy[i] = x[i] * y[i];
             yy[i] = pow(y[i],2);
-
-
+         
             sumxx = sumxx + xx[i];
             sumxy = sumxy + xy[i];
             sumyy = sumyy + yy[i];
-
         }
-
-
-
 
 
         //this is the formula used to calculate coefficient of determination, *see
         //https://www.jstor.org/stable/2965177?seq=6#metadata_info_tab_contents
-        //Reed, William Gardner. “The Coefficient of Correlation.” Publications of the American Statistical Association, vol. 15, no. 118, 1917, pp. 675–684. JSTOR, www.jstor.org/stable/2965177. Accessed 20 June 2021.
+        //Reed, William Gardner. “The Coefficient of Correlation.” Publications of the American Statistical Association, 
+        //vol. 15, no. 118, 1917, pp. 675–684. JSTOR, www.jstor.org/stable/2965177. Accessed 20 June 2021.
 
         double r = (n*sumxy - sumx*sumy)/sqrt((n*sumxx-pow(sumx,2))*(n*sumyy-pow(sumy,2)));
 
-
         return r;
     }
-
     else
-
-    {cout << "found vectors of different size on computing correlation";}
+    {
+     cout << "found vectors of different size on computing correlation";
+    }
 
 }
+
+
+
+
+
+//this function calculates the auto-correlation coefficient of a vector of random numbers
+//we use it to verify that the naturally occuring auto-correlation in the random numbers-
+//-we are using is sufficiently small i.e. of order e-03
 
 
 
@@ -275,15 +247,11 @@ double Div::lateralcorrcoef(VectorXd a){
     int n = a.size()-1;
 
 
-
-
     double x[n];
     double y[n];
     double xx[n];
     double xy[n];
     double yy[n];
-
-
 
     double sumx;
     double sumy;
@@ -314,6 +282,11 @@ double Div::lateralcorrcoef(VectorXd a){
 
 }
 
+
+
+
+//this function calculates the correlation matrix from the random matrix 
+
 MatrixXd Div::crossCorr(MatrixXd x){
     int m = x.col(0).size();
     int n = x.row(0).size();
@@ -330,3 +303,29 @@ MatrixXd Div::crossCorr(MatrixXd x){
 
     return corrMat;
 }
+
+
+
+
+
+//work-in-progress
+
+MatrixXd Div::verticallyColor(MatrixXd x){}
+
+VectorXd Div::laterallyColor(VectorXd x){}
+
+VectorXd Div::standardize(VectorXd x){}
+
+
+
+
+
+MatrixXd Div::generateColoredNoise(int numOfAssets, int numOfTicks)
+{
+    MatrixXd X = generateWhiteNoise(numOfAssets, numOfTicks);
+    MatrixXd Y = verticallyWhiten(X);
+
+
+    //vector<double> lC = laterallyColor(Y(0:));
+}
+
