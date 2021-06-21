@@ -149,7 +149,7 @@ MatrixXd Div::generateWhiteNoise(int numOfAssets, int numOfTicks)
 
 
 //this function removes cross-sectional correlation by multiplying a matrix
-// by the inverse of its lower cholesky decomposition matrix
+// by the inverse of the lower cholesky decomposition of its correlation matrix
 
 
 MatrixXd Div::verticallyWhiten(MatrixXd mx)
