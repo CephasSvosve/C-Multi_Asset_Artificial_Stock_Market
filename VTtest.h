@@ -24,19 +24,19 @@
 #include <math.h>
 
 using namespace esl::economics::markets::walras;
-using namespace esl;
+using namespace esl::economics::finance;
 using namespace esl::simulation;
 using namespace esl::economics;
-using namespace esl::economics::finance;
+using namespace esl;
 
-using esl::economics::nominal_interest_rate;
-using esl::economics::price;
 using esl::economics::markets::walras::quote_message;
-using esl::simulation::time_point;
-using esl::simulation::time_interval;
 using esl::economics::nominal_interest_rate;
-using std::map;
+using esl::economics::nominal_interest_rate;
+using esl::simulation::time_interval;
+using esl::simulation::time_point;
+using esl::economics::price;
 using std::vector;
+using std::map;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
