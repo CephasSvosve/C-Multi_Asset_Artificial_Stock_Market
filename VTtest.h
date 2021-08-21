@@ -51,7 +51,7 @@ struct VT
          double leverage;
 
 
-      VT(  price nav
+      VT(price nav
         ,map<identity<law::property>, double> allocation
         ,const quote_message &q = quote_message())
         :differentiable_order_message(q.sender, q.recipient)
@@ -63,9 +63,9 @@ struct VT
 
 
 
-
-      map<identity<law::property>, variable> excess_demand(
-        const std::map<identity<law::property>
+map<identity<law::property>, variable> 
+excess_demand(
+         const std::map<identity<law::property>
         ,std::tuple<markets::quote, variable>> &quotes) const
         {
         std::map<identity<property>, variable> excess_demand_;
