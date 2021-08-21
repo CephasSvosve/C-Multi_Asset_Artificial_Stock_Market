@@ -29,7 +29,6 @@ using namespace esl::simulation;
 using namespace esl::economics;
 using namespace esl::economics::finance;
 
-
 using esl::economics::nominal_interest_rate;
 using esl::economics::price;
 using esl::economics::markets::walras::quote_message;
