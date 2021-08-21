@@ -43,31 +43,31 @@ using std::vector;
 
 struct VT
         : public differentiable_order_message
-{
-    price net_asset_value;
-    map<identity<law::property>, double> allocation;
-    map<identity<law::property>, economics::price> valuations;
-    double agression;
-    double leverage;
+        {
+         price net_asset_value;
+         map<identity<law::property>, double> allocation;
+         map<identity<law::property>, economics::price> valuations;
+         double agression;
+         double leverage;
 
 
-    VT(     price nav
-            ,map<identity<law::property>, double> allocation
-    , const quote_message &q = quote_message())
-    : differentiable_order_message(q.sender, q.recipient)
-    , net_asset_value(nav)
-    , allocation(move(allocation))
-    {
+      VT(  price nav
+        ,map<identity<law::property>, double> allocation
+        ,const quote_message &q = quote_message())
+        :differentiable_order_message(q.sender, q.recipient)
+        ,net_asset_value(nav)
+        ,allocation(move(allocation))
+        {
 
-    }
-
-
+        }
 
 
-    map<identity<law::property>, variable> excess_demand(
-            const std::map<identity<law::property>,
-            std::tuple<markets::quote, variable>> &quotes) const
-    {
+
+
+      map<identity<law::property>, variable> excess_demand(
+        const std::map<identity<law::property>
+        ,std::tuple<markets::quote, variable>> &quotes) const
+        {
         std::map<identity<property>, variable> excess_demand_;
 
         for (auto &[k, v] : quotes)
@@ -113,7 +113,7 @@ struct VTAgent
         : public fund
 {
     VTAgent(const identity<shareholder> &i, const jurisdiction &j)
-            : fund(i, j)
+            :fund(i, j)
     {
 
     }
