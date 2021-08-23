@@ -72,7 +72,7 @@ excess_demand(
 
         for (auto &[k, v] : quotes)
         {
-            //wealth allocated to asset k is given by NAV * Allocation
+            //Cephas* wealth allocated to asset k is given by NAV * Allocation
             auto scale_ = double(net_asset_value)  * allocation.find(k)->second;
             const auto &[quote_, variable_] = v;
             const auto quoted_price_ = double(std::get<price>(quote_.type));
