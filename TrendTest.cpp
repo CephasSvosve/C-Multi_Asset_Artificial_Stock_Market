@@ -81,25 +81,6 @@ TTest::excess_demand(
                                     std::cout<< "trading 3" <<std::endl;
                                         result_.emplace(k, 100*quoted_price_ * variable_);
                                 }
-/*        if(valuations.end() != i) {
-            auto value_ = double(i->second);
-            auto j = this->supply.find(k);
-            if(supply.end() == j){
-                result_.emplace(k,  scale_ / (quoted_price_ * variable_) * (value_ -  (quoted_price_ * variable_)));
-            }else{
-                auto supply_long_ = double(std::get<0>(j->second));
-                auto supply_short_ = double(std::get<1>(j->second));
-                auto lambda_ = leverage * 2;
-                result_.emplace(k, scale_ *
-                                   (lambda_ / (1. + std::exp(  - agression * value_)) - lambda_ / 2. + 0.5 )
-                                   - (supply_long_ - supply_short_) * (quoted_price_ * variable_)
-                );
-            }
-
-
-
-
-*/
         }
     }
     return result_;
