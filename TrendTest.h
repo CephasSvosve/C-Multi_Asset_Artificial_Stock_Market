@@ -25,12 +25,12 @@
 #ifndef ME_momentum_HPP
 #define ME_momentum_HPP
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include <esl/economics/markets/walras/differentiable_order_message.hpp>
 #include <esl/economics/interest_rate.hpp>
 #include <esl/economics/price.hpp>
 #include "fund1.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace esl::economics::markets::walras {
     struct quote_message;
@@ -110,8 +110,5 @@ public:
     }
 
 };
-
-
-
 
 #endif  // ME_momentum_HPP
