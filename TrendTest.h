@@ -94,20 +94,17 @@ public:
     explicit TrendAgent( const esl::identity<fund> &i
                 ,const jurisdiction &j = esl::law::jurisdictions::US
                     ,size_t window = 21);
-
-    /// theta - 1
-        size_t window;
-
-    esl::law::property_map<std::map<time_point, price>> historic_prices;
-
-
-    time_point invest(std::shared_ptr<quote_message> message,
-                      time_interval interval, std::seed_seq &seed) override;
-
-
-    [[nodiscard]] std::string describe() const override{
-        return "trend_follower trader";
-    }
+                    
+ /// theta - 1
+    size_t window;
+        esl::law::property_map<std::map<time_point, price>> historic_prices;
+            time_point invest(std::shared_ptr<quote_message> message,
+                time_interval interval, std::seed_seq &seed) override;
+                
+                
+                    [[nodiscard]] std::string describe() const override{
+                        return "trend_follower trader";
+                            }
 
 };
 
