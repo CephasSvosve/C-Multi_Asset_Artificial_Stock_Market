@@ -33,7 +33,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE walrasian_market
 
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include <esl/economics/markets/walras/quote_message.hpp>
 #include <esl/economics/markets/walras/price_setter.hpp>
 #include <boost/test/included/unit_test.hpp>
@@ -43,7 +43,7 @@
 #include <esl/simulation/model.hpp>
 #include <esl/data/log.hpp>
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 using namespace esl::economics::markets::walras;
 using namespace esl::economics::markets;
 using namespace esl::economics::finance;
