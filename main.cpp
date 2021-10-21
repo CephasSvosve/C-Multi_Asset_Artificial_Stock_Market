@@ -167,35 +167,7 @@ BOOST_AUTO_TEST_SUITE(ESL)
         std::cout<<std::get<price>(market_->traded_properties.find(properties_[0])->second.type)<<std::endl;
         std::cout<<std::get<price>(market_->traded_properties.find(properties_[1])->second.type)<<std::endl;
         model_.step({3, 4});
-        /*
-         // expect: prices unchanged from initial price given above
-         BOOST_TEST(std::get<price>(market_->traded_properties.find(properties_[0])->second.type) == price(100, currencies::USD));
-         BOOST_TEST(std::get<price>(market_->traded_properties.find(properties_[1])->second.type) == price(100, currencies::USD));
-
-         // we have the first market interaction: prices are formed by the market agent
-         model_.step({1, 2});
-
-         // prices are updated
-         BOOST_TEST(std::get<price>(market_->traded_properties.find(properties_[0])->second.type) == price( 66, currencies::USD));
-         BOOST_TEST(std::get<price>(market_->traded_properties.find(properties_[1])->second.type) == price(133, currencies::USD));
-
-         // the agent does not know the new prices until after one time step
-         BOOST_CHECK_EQUAL(participants_[0]->prices.size(), assets);
-         BOOST_TEST(participants_[0]->prices.find(properties_[0])->second == price(100, currencies::USD));
-         BOOST_TEST(participants_[0]->prices.find(properties_[1])->second == price(100, currencies::USD));
-         //log(notice) << participants_[0]->prices << std::endl;
-
-         // the market runs again
-         model_.step({2, 3});
-         // the agent now knows the previous prices from step [1, 2)
-         //log(notice) << participants_[0]->prices << std::endl;
-         BOOST_TEST(participants_[0]->prices.find(properties_[0])->second == price( 66, currencies::USD));
-         BOOST_TEST(participants_[0]->prices.find(properties_[1])->second == price(133, currencies::USD));
-
-         // the market prices are computed again
-         BOOST_TEST(std::get<price>(market_->traded_properties.find(properties_[0])->second.type) == price( 66, currencies::USD));
-         BOOST_TEST(std::get<price>(market_->traded_properties.find(properties_[1])->second.type) == price(133, currencies::USD));
-     */
+   
         }
 
 BOOST_AUTO_TEST_SUITE_END()  // ESL
