@@ -28,22 +28,22 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include <esl/economics/markets/walras/differentiable_order_message.hpp>
 #include <esl/economics/interest_rate.hpp>
+#include <esl/economics/currencies.hpp>
 #include <esl/economics/price.hpp>
-#include "fund1.h"
+#include "fund.hpp"
 
 
 namespace esl::economics::markets::walras {
     struct quote_message;
 }
 
-using economics::markets::walras::differentiable_order_message;
+using esl::economics::markets::walras::differentiable_order_message;
 using esl::economics::markets::walras::quote_message;
-using esl::economics::nominal_interest_rate;
 using esl::economics::nominal_interest_rate;
 using esl::simulation::time_interval;
 using esl::simulation::time_point;
 using esl::economics::price;
-using namespace esl;
+using esl::economics::currencies::USD;
 using namespace esl;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ public:
 
     //params
     std::map<identity<law::property>, double> valuations;
-        economics::price net_asset_value;
+        price net_asset_value;
             double agression;
                 double leverage;
 
@@ -65,7 +65,7 @@ public:
             , const identity<agent> &recipient
                 , simulation::time_point sent     = simulation::time_point()
                     , simulation::time_point received = simulation::time_point()
-                        , economics::price nav = economics::price(0, economics::currencies::USD)
+                        , price nav = price(0, USD)
                             , std::map<identity<law::property>, double> valuations = {})
                                 : differentiable_order_message(sender, recipient, sent, received)
                                     , valuations(valuations)

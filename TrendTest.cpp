@@ -90,11 +90,11 @@ TTest::excess_demand(
 //Trend Agent Constructor
 
 TrendAgent::TrendAgent(const identity<fund> &i, const jurisdiction &j, size_t window)
-        : agent(i)
-            , owner<cash>(i)
-                , owner<stock>(i)
-                    , fund(i, j)
-                        , window(window)
+: agent(i)
+, owner<cash>(i)
+, owner<stock>(i)
+, fund(i, j)
+, window(window)
 {
 
 }
@@ -159,7 +159,7 @@ TrendAgent::invest(shared_ptr<quote_message> message, time_interval interval, se
             valuations_.emplace(get<0>(t),  get<3>(t));
         }
 
-
+        std::cout << "sending TTest" << std::endl;
     auto message_ = this->template create_message<TTest>(
             message->sender, interval.lower, (*this), message->sender,
                 interval.lower, interval.lower, nav_, valuations_);
@@ -192,4 +192,4 @@ TrendAgent::invest(shared_ptr<quote_message> message, time_interval interval, se
     return interval.lower;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+

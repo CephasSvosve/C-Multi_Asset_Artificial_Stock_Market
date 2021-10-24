@@ -20,11 +20,7 @@ private:
 
 
 public:
-
-
-
-
-    Watch addClock(Watch clock)
+    void addClock(Watch clock)
     {
         marketClock = clock;
     }
@@ -44,9 +40,6 @@ public:
     //void addAsset(RiskyAsset a){assets = a;}
 
     //double* getAssets(){return assets;}
-
-
-
 };
 
 #endif //MARKET_ECOLOGY_MARKET_H
