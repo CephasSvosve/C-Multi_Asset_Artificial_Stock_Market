@@ -16,9 +16,9 @@
 #include <esl/law/jurisdictions.hpp>
 #include <esl/simulation/model.hpp>
 #include <esl/economics/price.hpp>
-#include <boost/python.hpp>
+//#include <boost/python.hpp>
 #include <boost/random.hpp>
-#include "market_data.h"
+//#include "market_data.h"
 #include "fund.hpp"
 #include "adept.h"
 #include <math.h>
@@ -112,7 +112,7 @@ excess_demand(
 struct VTAgent
         : public fund
 {
-    VTAgent(const identity<shareholder> &i, const jurisdiction &j)
+    VTAgent(const identity<fund> &i, const jurisdiction &j)
             :fund(i, j)
     {
 
