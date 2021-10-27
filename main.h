@@ -57,20 +57,19 @@ using std::vector;
 using std::map;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
 //define market clearer
-    computation::environment environment_;
-    simulation::model model_(environment_, simulation::parameter::parametrization(0, 0, 10));
+computation::environment environment_;
+simulation::model model_(environment_, simulation::parameter::parametrization(0, 0, 10));
 
 
 int main(int c, char *a[]) {
-    
-//type definition for the stocks key variable    
+
+//type definition for the stocks key variable
     typedef std::tuple<identity<company>, share_class> key_t;
 
-    
-    
-//we create a method of adding tradeable assets into the market    
+
+
+//we create a method of adding tradeable assets into the market
 void
 append_Property(
         vector<std::tuple<std::shared_ptr<company>, share_class>> *share_classes
@@ -79,21 +78,21 @@ append_Property(
                     ,std::vector<std::shared_ptr<property>> *properties
                         ,int shares_outstanding
                             ,double starting_price);
-    
-    
-    
+
+
+
 //we create asset parameters
     vector<std::tuple<std::shared_ptr<company>, share_class>> share_classes_;
         map<key_t, identity<law::property>> stocks_;
             law::property_map<quote> traded_assets_;
                 std::vector<std::shared_ptr<property>> properties_;
-    
-                
+
+
 
 //create the assets, by creating the companies that issued the shares first
 append_Property(&share_classes_, &stocks_, &traded_assets_, &properties_, 2000, 200);
 append_Property(&share_classes_, &stocks_, &traded_assets_, &properties_, 1000, 300);
-
+append_Property(&share_classes_, &stocks_, &traded_assets_, &properties_, 1000, 400);
 
 
 auto market_ = model_.template create<price_setter>();
@@ -135,7 +134,7 @@ market_->traded_properties = traded_assets_;
                     std::cout << "created " << share_classes_.size()
                         << " share classes" << std::endl;
 
-                    
+
                     // notify company of new shareholders
                     for (auto &share: share_classes_) {
                          auto c = std::get<0>(share);
@@ -149,21 +148,21 @@ market_->traded_properties = traded_assets_;
 
     // during the first timestep, the market sends out quotes, and nothing else happens
     model_.step({0, 1});
-
     std::cout << std::get<price>(market_->traded_properties.find(properties_[0])->second.type) << std::endl;
     std::cout << std::get<price>(market_->traded_properties.find(properties_[1])->second.type) << std::endl;
-    //std::cout << std::get<price>(market_->traded_properties.find(properties_[2])->second.type) << std::endl;
+    std::cout << std::get<price>(market_->traded_properties.find(properties_[2])->second.type) << std::endl;
 
     // we have the first market interaction: prices are formed by the market agent
     model_.step({1, 2});
     std::cout << std::get<price>(market_->traded_properties.find(properties_[0])->second.type) << std::endl;
     std::cout << std::get<price>(market_->traded_properties.find(properties_[1])->second.type) << std::endl;
+    std::cout << std::get<price>(market_->traded_properties.find(properties_[2])->second.type) << std::endl;
 
-
-    // the market runs again
+        // the market runs again
     model_.step({2, 3});
     std::cout << std::get<price>(market_->traded_properties.find(properties_[0])->second.type) << std::endl;
     std::cout << std::get<price>(market_->traded_properties.find(properties_[1])->second.type) << std::endl;
+    std::cout << std::get<price>(market_->traded_properties.find(properties_[2])->second.type) << std::endl;
     model_.step({3, 4});
 
 }
