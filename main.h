@@ -57,14 +57,13 @@ using std::vector;
 using std::map;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-int main(int c, char *a[]) {
     
 //define market clearer
     computation::environment environment_;
     simulation::model model_(environment_, simulation::parameter::parametrization(0, 0, 10));
-  
-    
+
+
+int main(int c, char *a[]) {
     
 //type definition for the stocks key variable    
     typedef std::tuple<identity<company>, share_class> key_t;
