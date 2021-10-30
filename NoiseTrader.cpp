@@ -173,31 +173,30 @@ NTAgent::invest(shared_ptr<quote_message> message, time_interval interval, seed_
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 MatrixXd NTAgent::generateWhiteNoise(int rows, int columns) {
     MatrixXd randoms(rows, columns);
-    VectorXd a;
+        VectorXd a;
 
 
     //algorithm for generating random numbers that are seeded on changing time
     time_t now = 223;
-    boost::random::mt19937 gen{static_cast<uint32_t>(now)};
-    boost::normal_distribution<> nd(0.0, 1.0);
-    boost::variate_generator<boost::mt19937 &,
-            boost::normal_distribution<> > var_nor(gen, nd);
+        boost::random::mt19937 gen{static_cast<uint32_t>(now)};
+                boost::normal_distribution<> nd(0.0, 1.0);
+                        boost::variate_generator<boost::mt19937 &,
+                                boost::normal_distribution<> > var_nor(gen, nd);
 
 
 
     //we generate the matrix of random numbers
     for (int rw = 0; rw < rows; rw++) {
         //we make sure the naturally occurring auto-correlation is sufficiently small by using a do-while loop
-        do {
-            //here we load each row with appropriate random numbers
-            a = VectorXd(columns);
-            for (int i = 0; i < columns; ++i) {
-                a(i) = var_nor();
-            }
-        } while (abs(lateralcorrcoef(a)) > 0.001);
+                do {
+                        //here we load each row with appropriate random numbers
+                                a = VectorXd(columns);
+                                        for (int i = 0; i < columns; ++i) {
+                                                a(i) = var_nor();}
+                                                        } while (abs(lateralcorrcoef(a)) > 0.001);
 
 
-        randoms.row(rw) = a;
+      randoms.row(rw) = a;
     }
     return randoms;
 }
@@ -207,17 +206,9 @@ double NTAgent::lateralcorrcoef(VectorXd a){
 
     int n = a.size()-1;
 
-    double x[n];
-    double y[n];
-    double xx[n];
-    double xy[n];
-    double yy[n];
-
-    double sumx;
-    double sumy;
-    double sumxx;
-    double sumxy;
-    double sumyy;
+    double x[n],xx[n],xy[n],y[n],yy[n];
+    double sumx,sumxx,sumxy,sumy, sumyy;
+                
 
     for (int i=0; i < n; i++)
     {
