@@ -133,9 +133,6 @@ market_->traded_properties = traded_assets_;
                     }
 
 
-
-
-
                     std::cout << "created " << share_classes_.size()
                         << " share classes" << std::endl;
 
@@ -148,7 +145,6 @@ market_->traded_properties = traded_assets_;
                                     c->shareholders.emplace(*p, holdings_);
                     }
     }
-
 
 
     // during the first timestep, the market sends out quotes, and nothing else happens
