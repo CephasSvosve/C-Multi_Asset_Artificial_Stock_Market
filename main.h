@@ -1,11 +1,10 @@
-//
-// Created by Cephas Svosve on 27/10/2021.
+
 //
 /// \file   test_walrasian_market.cpp
 ///
 /// \brief
 ///
-/// \authors    Maarten P. Scholl
+/// \authors    Cephas Svosve and Maarten P. Scholl
 /// \date       2019-10-08
 /// \copyright  Copyright 2017-2019 The Institute for New Economic Thinking,
 ///             Oxford Martin School, University of Oxford
@@ -33,9 +32,11 @@
 #include <utility>
 //#include "market_data.h"
 #include "VTtest.h"
+#include "GrowthInvestor.h"
 //#include "Newtrader.h"
 #include "TrendTest.h"
 //#include "NoiseTest.h"
+
 
 #include <esl/economics/markets/walras/quote_message.hpp>
 #include <esl/economics/markets/walras/price_setter.hpp>
@@ -90,19 +91,22 @@ append_Property(
 
 
 //create the assets, by creating the companies that issued the shares first
-append_Property(&share_classes_, &stocks_, &traded_assets_, &properties_, 2000, 200);
+append_Property(&share_classes_, &stocks_, &traded_assets_, &properties_, 1000, 200);
 append_Property(&share_classes_, &stocks_, &traded_assets_, &properties_, 1000, 300);
 append_Property(&share_classes_, &stocks_, &traded_assets_, &properties_, 1000, 400);
 
 
 auto market_ = model_.template create<price_setter>();
+
 market_->traded_properties = traded_assets_;
 
 //create a collection with trading agents who are also shareholders
-    vector<std::shared_ptr<TrendAgent>> participants_ =
+    vector<std::shared_ptr<fund>> participants_ =
             {
             model_.template create<TrendAgent>(),
-            model_.template create<TrendAgent>()
+                model_.template create<VTAgent>(),
+                    model_.template create<GIAgent>(),
+
             };
 
 
@@ -116,19 +120,20 @@ market_->traded_properties = traded_assets_;
                         p->stocks.insert(std::make_pair(k, v));
                             // give initial stock valuation to agent
                             p->lookup_.mark_to_market.emplace(
-                                    v, price::approximate(200, currencies::USD));
+                                    v, price::approximate(100, currencies::USD));
                     }
 
                     // give agents an endowment of stocks
                     for (const auto &[k, v]: traded_assets_) {
                         (void) v;
-                            (*p).shareholder::owner<stock>::properties.insert(
-                                    std::dynamic_pointer_cast<stock>(k), quantity(500));
+                            (*p).shareholder::owner<stock>::take(
+                                    std::dynamic_pointer_cast<stock>(k), quantity(1500));
+                            (*p).shareholder::owner<cash>::take(
+                                    cash_, cash_->amount(1000000));
                     }
 
 
-                    (*p).shareholder::owner<cash>::take(
-                            cash_, cash_->amount(1'000'000));
+
 
 
                     std::cout << "created " << share_classes_.size()
@@ -139,7 +144,7 @@ market_->traded_properties = traded_assets_;
                     for (auto &share: share_classes_) {
                          auto c = std::get<0>(share);
                             map<share_class, std::uint64_t> holdings_;
-                                holdings_.emplace(std::get<1>(share), 500);
+                                holdings_.emplace(std::get<1>(share), 1500);
                                     c->shareholders.emplace(*p, holdings_);
                     }
     }
@@ -147,24 +152,12 @@ market_->traded_properties = traded_assets_;
 
 
     // during the first timestep, the market sends out quotes, and nothing else happens
-    model_.step({0, 1});
-    std::cout << std::get<price>(market_->traded_properties.find(properties_[0])->second.type) << std::endl;
-    std::cout << std::get<price>(market_->traded_properties.find(properties_[1])->second.type) << std::endl;
-    std::cout << std::get<price>(market_->traded_properties.find(properties_[2])->second.type) << std::endl;
-
-    // we have the first market interaction: prices are formed by the market agent
-    model_.step({1, 2});
-    std::cout << std::get<price>(market_->traded_properties.find(properties_[0])->second.type) << std::endl;
-    std::cout << std::get<price>(market_->traded_properties.find(properties_[1])->second.type) << std::endl;
-    std::cout << std::get<price>(market_->traded_properties.find(properties_[2])->second.type) << std::endl;
-
-        // the market runs again
-    model_.step({2, 3});
-    std::cout << std::get<price>(market_->traded_properties.find(properties_[0])->second.type) << std::endl;
-    std::cout << std::get<price>(market_->traded_properties.find(properties_[1])->second.type) << std::endl;
-    std::cout << std::get<price>(market_->traded_properties.find(properties_[2])->second.type) << std::endl;
-    model_.step({3, 4});
-
+    for(time_point x = 0; x<4; x++){
+        model_.step({x, x+1});
+        std::cout << std::get<price>(market_->traded_properties.find(properties_[0])->second.type) << std::endl;
+        std::cout << std::get<price>(market_->traded_properties.find(properties_[1])->second.type) << std::endl;
+        std::cout << std::get<price>(market_->traded_properties.find(properties_[2])->second.type) << std::endl;
+    }
 }
 
 
