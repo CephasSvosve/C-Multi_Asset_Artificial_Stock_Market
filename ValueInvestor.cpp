@@ -68,7 +68,7 @@ VT::excess_demand(
         for(auto &[k, v] : quotes){
             const auto &[quote_, variable_] = v;
                 const auto quoted_price_ = double(get<price>(quote_.type));
-                    phi = log10(quoted_price_/earnings.find(k)->second) - Beta;
+                    phi = -(log10(quoted_price_/earnings.find(k)->second) - Beta);
                         sum_of_signals = sum_of_signals + exp(phi);}
 
 
