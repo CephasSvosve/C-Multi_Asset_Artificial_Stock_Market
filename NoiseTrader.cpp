@@ -31,6 +31,13 @@ using esl::identity;
 using namespace esl;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//sign extraction function
+
+template <typename T> int sgn(T val) {
+    return (T(0) < val) - (val < T(0));
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Excess Demand Function
 
 map<identity<law::property>, esl::variable>
@@ -52,31 +59,29 @@ NT::excess_demand(
     for(auto &[k, v] : quotes){
         const auto &[quote_, variable_] = v;
             const auto quoted_price_ = double(get<price>(quote_.type));
-                phi = -log10(quoted_price_/abs(earnings.find(k)->second)) ;
-                    sum_of_signals = sum_of_signals + exp(phi);}
+                phi = -log10(double(quoted_price_)/abs(earnings.find(k)->second)) ;
+                    sum_of_signals = sum_of_signals + exp(pow(phi,2));}
 
     
     for(auto &[k, v] : quotes){
         const auto &[quote_, variable_] = v;
-            auto scale_ = phi / sum_of_signals;
                 const auto quoted_price_ = double(get<price>(quote_.type));
-                    std::cout<< quoted_price_ <<std::endl;
-                        auto i = earnings.find(k);
-                            //print statement to test if clearer is reaching this point
-                                std::cout<< "trading 1" <<std::endl;
+                        phi = -log10(double(quoted_price_)/abs(earnings.find(k)->second)) ;
+                                auto scale_ = sgn(phi) * exp(pow(phi,2)) / sum_of_signals;
+                                        std::cout<< quoted_price_ <<std::endl;
+                                                
 
-
-
-
-        if(earnings.end() != i){
-            auto value_ = double(i->second);
-                auto j = this->supply.find(k);
-                    if(supply.end() == j){
-                        result_.emplace(k,  nav_*scale_/quoted_price_ * variable_);
-                            }else{//print statement to test if clearer is reaching this point
-                                std::cout<< net_asset_value<<"this is fund NAV" <<std::endl;
-                                    std::cout<< "trading 3" <<std::endl;
-                                        result_.emplace(k,  double(net_asset_value)*scale_/quoted_price_ * variable_);
+        auto i = earnings.find(k);
+              if(earnings.end() != i){
+                    auto value_ = double(i->second);
+                        auto j = this->supply.find(k);
+                            if(supply.end() == j){
+                                result_.emplace(k,  nav_*scale_/quoted_price_ * variable_);
+                                    }else{//print statement to test if clearer is reaching this point
+                                          auto supply_long_ = double(std::get<0>(j->second));
+                                                auto supply_short_ = double(std::get<1>(j->second));
+                                                        result_.emplace(k,  (double(net_asset_value)*scale_/(quoted_price_ * variable_))-
+                                                                - (supply_long_ - supply_short_) * (quoted_price_ * variable_)) ; }
             }
         }
     }
