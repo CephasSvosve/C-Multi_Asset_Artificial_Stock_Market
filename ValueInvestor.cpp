@@ -150,7 +150,16 @@ VTAgent::invest(shared_ptr<quote_message> message, time_interval interval, seed_
         if(earnings_.end() != earnings_.find(property_->identifier)){
             earnings_.find(property_->identifier)->second = 12.0;//dummy earnings TODO link with actual earnings
         }else{
+            
             earnings_.emplace(property_->identifier, 12.0);//dummy earnings TODO link with actual earnings
+            
+            
+            
+      //TODO extract a stock's shares_outstanding
+            identity<property> t;
+               t = property_->identifier;
+                   auto a= market_data.shares_outstanding[t];
+                      std::cout<<"shares_outstanding for stock "<< t <<" are " << double(a)<<std::endl;
 
         }
 
