@@ -82,7 +82,6 @@ GI::excess_demand(
                                             (supply_long_ - supply_short_) * (quoted_price_ * variable_));}
             }
         }
-    }
     std::cout<< "result"<<result_ <<std::endl;
 
     return result_;
