@@ -43,6 +43,7 @@ map<identity<law::property>, esl::variable>
 Index::excess_demand(
         const std::map<identity<law::property>,
                 tuple<markets::quote, esl::variable>> &quotes)const{
+    
 
 
     std::cout<< "trading 0" <<std::endl;
@@ -52,7 +53,10 @@ Index::excess_demand(
                             sum_of_signals,
                                  phi;//signal
 
+    
 
+    
+    
     for(auto &[k, v] : quotes){
           const auto &[quote_, variable_] = v;
                const auto quoted_price_ = double(get<price>(quote_.type));
@@ -70,6 +74,8 @@ Index::excess_demand(
                               phi = get<1>(tau_market_cap);
                                     auto scale_ = phi / sum_of_signals;
 
+        
+        
 
         auto i = market_cap.find(k);
               if (market_cap.end() != i) {
@@ -90,8 +96,8 @@ Index::excess_demand(
                                                     (supply_long_ - supply_short_) * (quoted_price_ * variable_));
                                                       } 
                                                 else {
-                                                      result_.emplace(k, cashflow_ * scale_ / quoted_price_ * variable_ +
-                                                      (supply_long_ - supply_short_) * (quoted_price_ * variable_));
+                                                      result_.emplace(k, cashflow_ * scale_ / quoted_price_ * 
+                                                        variable_ +(supply_long_ - supply_short_) * (quoted_price_ * variable_));
                 }
             }
         }
@@ -109,26 +115,34 @@ IndexAgent::IndexAgent(const identity<fund> &i, const jurisdiction &j)
                           ,fund(i, j)
 {
 }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Invest Function - Similar to act() function/
 
 time_point
 IndexAgent::invest(shared_ptr<quote_message> message, time_interval interval, seed_seq &seed)
 {
+    
+    
+    
     auto t = interval.lower;
           auto cashflow = (t/t)*price(0,USD);//TODO describe cashflow as some function of time t
                 auto nav_ = make_tuple(cashflow,net_asset_value(interval));
                      time_point tau = reb_period * floor(interval.lower/reb_period); //tau is the previous portfolio rebalancing day
   
+    
   
   
+    
     if(tau<1){tau = 1;} //simulator gives first price at time 1 but tau begins at 0
-  
         if(message->received < interval.lower){return interval.lower;}
             if(get<1>(nav_).value <= 0){return interval.upper;}
                 if(this->target_net_asset_value.has_value() && double(target_net_asset_value.value()) <= 1.){
                     return interval.upper;}
 
+    
+    
+    
     
     std::map<identity<property>, tuple<time_point, double>> market_capital;
           for(auto [property_, quote_]: message->proposed) {
@@ -137,6 +151,9 @@ IndexAgent::invest(shared_ptr<quote_message> message, time_interval interval, se
                               if(i == historic_prices.end()) {
                                       i = historic_prices.emplace(property_, std::map<time_point, price>()).first;}
 
+              
+              
+              
 //manage historic prices array
         if(interval.lower > reb_period + 1){
                   auto t_j = i->second.begin();
@@ -146,10 +163,14 @@ IndexAgent::invest(shared_ptr<quote_message> message, time_interval interval, se
             }
         }
 
+              
+              
         i->second[interval.lower] = std::get<price>(quote_.type);
               std::map<time_point, price> &prices_ = i->second;
                       price_= double(prices_[tau]);
 
+              
+              
 
         auto shares_outstanding = data_shares_outstanding.find(property_->identifier)->second;
               auto market_share = double(shares_outstanding * price_);
@@ -162,6 +183,8 @@ IndexAgent::invest(shared_ptr<quote_message> message, time_interval interval, se
                         }
 
   
+    
+    
     std::cout << "sending IndexTest" << std::endl;
           auto message_ = this->template create_message<Index>(
                 message->sender, interval.lower, (*this), message->sender,
@@ -169,10 +192,15 @@ IndexAgent::invest(shared_ptr<quote_message> message, time_interval interval, se
 
 
 
+    
+    
     message_->agression = this->aggression;
     message_->leverage = this->maximum_leverage;
 
 
+    
+    
+    
     for(auto [p,q]: inventory){
         auto cast_ = std::dynamic_pointer_cast<stock>(p);
               if(cast_){if(0 == q.amount){continue;}
