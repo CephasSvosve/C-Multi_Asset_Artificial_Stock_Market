@@ -1,4 +1,4 @@
-/// \file   ValueInvestor.hpp
+/// \file   Value_investor.hpp
 ///
 /// \brief
 ///
@@ -22,8 +22,9 @@
 ///             You may obtain instructions to fulfill the attribution
 ///             requirements in CITATION.cff
 ///
-#ifndef UNTITLED21_VALUEINVESTOR_H
-#define UNTITLED21_VALUEINVESTOR_H
+#ifndef UNTITLED21_VTTEST_H
+#define UNTITLED21_VTTEST_H
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include <esl/economics/markets/walras/differentiable_order_message.hpp>
@@ -31,6 +32,7 @@
 #include <esl/economics/currencies.hpp>
 #include <esl/economics/price.hpp>
 #include "fund1.h"
+#include "marketData.h"
 #include <iostream>
 
 
@@ -55,36 +57,39 @@ struct VT
 public:
 
     //params
-    std::map<identity<law::property>, double> earnings;
-        price net_asset_value;
-            double agression;
-                double leverage;
+    std::map<esl::identity<property>, std::tuple<time_point, double>> earnings;
+    std::tuple<time_point, price,price>  net_asset_value;
+    time_point reb_period_;
+    double agression;
+    double leverage;
 
 
     //constructor
     VT(const identity<agent> &sender
             , const identity<agent> &recipient
-                , simulation::time_point sent     = simulation::time_point()
-                    , simulation::time_point received = simulation::time_point()
-                        , price nav = price(0, USD)
-                            , std::map<identity<law::property>, double> earnings = {})
-                                :differentiable_order_message(sender, recipient, sent, received)
-                                    ,earnings(earnings)
-                                        ,net_asset_value(nav){}
+            , simulation::time_point sent     = simulation::time_point()
+            , simulation::time_point received = simulation::time_point()
+            , std::tuple<time_point, price,price> nav = {0,price(0, USD),price(0, USD)}
+            , std::map<esl::identity<property>, std::tuple<time_point, double>> earnings = {}
+            ,time_point reb_period_ = {})
+            :differentiable_order_message(sender, recipient, sent, received)
+            ,earnings(earnings)
+            ,net_asset_value(nav)
+            ,reb_period_(reb_period_){}
 
 
 
     std::map<identity<law::property>, variable>
-        excess_demand(
+    excess_demand(
             const std::map<identity<law::property>,
                     std::tuple<economics::markets::quote, variable>>
-                        &quotes) const;
+            &quotes) const;
 
 
     template<class archive_t>
-        void serialize(archive_t &archive, const unsigned int version){
-            (void)version;
-                archive &BOOST_SERIALIZATION_BASE_OBJECT_NVP(differentiable_order_message);
+    void serialize(archive_t &archive, const unsigned int version){
+        (void)version;
+        archive &BOOST_SERIALIZATION_BASE_OBJECT_NVP(differentiable_order_message);
     }
 };
 
@@ -95,21 +100,22 @@ class VTAgent
 {
 public:
     explicit VTAgent( const esl::identity<fund> &i
-            ,const jurisdiction &j = esl::law::jurisdictions::US
-                ,size_t window = 21);
+            ,const jurisdiction &j = esl::law::jurisdictions::US);
 
-    /// theta - 1
-    size_t window;
-        esl::law::property_map<std::map<time_point, price>> historic_prices;
-            time_point invest(std::shared_ptr<quote_message> message,
-                  time_interval interval, std::seed_seq &seed) override;
+    std::map<esl::identity<property>, std::tuple<time_point, double>> earnings_;
+    time_point reb_period=1;
+
+    time_point invest(std::shared_ptr<quote_message> message,
+                      time_interval interval, std::seed_seq &seed) override;
+
+    auto process_dividends_(std::shared_ptr<esl::economics::finance::dividend_announcement_message> message,
+                            time_interval interval, std::seed_seq &seed);
 
 
     [[nodiscard]] std::string describe() const override{
-        return "Value trader";
+        return "Value_Investor";
     }
 
 };
 
-#endif //UNTITLED21_VALUEINVESTOR_H
-
+#endif //UNTITLED21_VTTEST_H
