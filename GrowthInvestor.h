@@ -11,6 +11,7 @@
 #include <esl/economics/currencies.hpp>
 #include <esl/economics/price.hpp>
 #include "fund1.h"
+#include "marketData.h"
 #include <iostream>
 
 
@@ -35,10 +36,11 @@ struct GI
 public:
 
     //params
-    std::map<identity<law::property>, double> earnings;
-        price net_asset_value;
-            double agression;
-                double leverage;
+    std::map<esl::identity<property>, std::tuple<time_point, double>> earnings;
+        std::tuple<time_point, price,price>  net_asset_value;
+            time_point reb_period_;
+                double agression;
+                    double leverage;
 
 
     //constructor
@@ -46,11 +48,13 @@ public:
             , const identity<agent> &recipient
                 , simulation::time_point sent     = simulation::time_point()
                     , simulation::time_point received = simulation::time_point()
-                        , price nav = price(0, USD)
-                            , std::map<identity<law::property>, double> earnings = {})
+                        , std::tuple<time_point, price,price> nav = {0,price(0, USD),price(0, USD)}
+                            , std::map<esl::identity<property>, std::tuple<time_point, double>> earnings = {}
+                                ,time_point reb_period_ = {})
                                 :differentiable_order_message(sender, recipient, sent, received)
                                     ,earnings(earnings)
-                                        ,net_asset_value(nav){}
+                                        ,net_asset_value(nav)
+                                             ,reb_period_(reb_period_){}
 
 
 
@@ -77,13 +81,18 @@ public:
     explicit GIAgent( const esl::identity<fund> &i
             ,const jurisdiction &j = esl::law::jurisdictions::US);
 
+    std::map<esl::identity<property>, std::tuple<time_point, double>> earnings_;
+    time_point reb_period=1;
 
     time_point invest(std::shared_ptr<quote_message> message,
                       time_interval interval, std::seed_seq &seed) override;
 
+    auto process_dividends_(std::shared_ptr<esl::economics::finance::dividend_announcement_message> message,
+                            time_interval interval, std::seed_seq &seed);
+
 
     [[nodiscard]] std::string describe() const override{
-        return "Growth trader";
+        return "Growth_Investor";
     }
 
 };
