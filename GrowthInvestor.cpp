@@ -27,14 +27,10 @@ using esl::identity;
 using namespace esl;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//sign extraction function
-
+//Excess Demand Function
 template <typename T> int sgn(T val) {
     return (T(0) < val) - (val < T(0));
 }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//Excess Demand Function
 
 map<identity<law::property>, esl::variable>
 GI::excess_demand(
@@ -45,47 +41,67 @@ GI::excess_demand(
     //print statement to test if clearer is reaching this point
     std::cout<< "trading 0" <<std::endl;
         map<esl::identity<property>, esl::variable> result_;
-            double nav_ = double(net_asset_value),
-                Beta = log10(9.0),//dummy threshold TODO: link this variable with actual earnings
-                    sum_of_signals,
-                        phi;//signal
+            time_point t = get<0>(net_asset_value);
+                double cashflow_ = double(get<1>(net_asset_value)),
+                    nav_ = double(get<2>(net_asset_value)),
+                        Beta = log10(9.0),//dummy threshold TODO: link this variable with actual earnings
+                             portfolio_alloc = 0.6,
+                                sum_of_signals,
+                                    phi;//signal
 
 
     for(auto &[k, v] : quotes){
         const auto &[quote_, variable_] = v;
             const auto quoted_price_ = double(get<price>(quote_.type));
-                phi = (log10(double(quoted_price_)/earnings.find(k)->second) - Beta);
+                phi = (log10(double(quoted_price_)/get<1>(earnings.find(k)->second)) - Beta);
                     sum_of_signals = sum_of_signals + exp(pow(phi,2));}
 
 
 
 
     for(auto &[k, v] : quotes){
+
         const auto &[quote_, variable_] = v;
             const auto quoted_price_ = double(get<price>(quote_.type));
-                phi = (log10(double(quoted_price_)/earnings.find(k)->second) - Beta);
-                    auto scale_ = sgn(phi) * exp(pow(phi,2)) /sum_of_signals;
+                phi = (log10(double(quoted_price_)/get<1>(earnings.find(k)->second)) - Beta);
+                    auto stock_alloc = sgn(phi) * exp(pow(phi,2)) /sum_of_signals;
+
+                                //print statement to test if clearer is reaching this point
 
 
 
 
-    auto i = earnings.find(k);
-        if(earnings.end() != i){
-            auto value_ = double(i->second);
-                auto j = this->supply.find(k);
-                    if(supply.end() == j){
-                        result_.emplace(k,  nav_*scale_/quoted_price_ * variable_);
-                            }else{//print statement to test if clearer is reaching this point
-                                auto supply_long_ = double(std::get<0>(j->second));
-                                    auto supply_short_ = double(std::get<1>(j->second));
-                                        result_.emplace(k,  (double(net_asset_value)*scale_/(quoted_price_ * variable_))-
-                                            (supply_long_ - supply_short_) * (quoted_price_ * variable_));}
+
+        auto i = earnings.find(k);
+        std::cout<<"*****"<<get<0>(i->second)<<t<<std::endl;
+        if (earnings.end() != i) {
+            auto tau_earnings = i->second;
+            auto j = this->supply.find(k);
+            if (supply.end() == j) {
+                if (get<0>(tau_earnings) == t) {
+                    result_.emplace(k, nav_ * stock_alloc * portfolio_alloc / (quoted_price_ * variable_));
+                }
+                else {
+                    result_.emplace(k, cashflow_ * stock_alloc * portfolio_alloc / quoted_price_ * variable_);
+                }
+            }
+            else {  auto supply_long_ = double(std::get<0>(j->second));
+                    auto supply_short_ = double(std::get<1>(j->second));
+                    if (get<0>(tau_earnings) == t) {result_.emplace(k, (nav_ * stock_alloc * portfolio_alloc /
+                                  (quoted_price_ * variable_)) - (supply_long_ - supply_short_) * (quoted_price_ * variable_));
+                }
+                else {result_.emplace(k, cashflow_ * stock_alloc * portfolio_alloc / (quoted_price_ *
+                                       variable_) +(supply_long_ - supply_short_) * (quoted_price_ * variable_));
+                }
             }
         }
-    std::cout<< "result"<<result_ <<std::endl;
+    }
+
 
     return result_;
 }
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Trend Agent Constructor
 
@@ -102,38 +118,51 @@ GIAgent::GIAgent(const identity<fund> &i, const jurisdiction &j)
 time_point
 GIAgent::invest(shared_ptr<quote_message> message, time_interval interval, seed_seq &seed)
 {
-    auto nav_ = net_asset_value(interval);
-        std::cout<<"NAV interval"<<nav_<<std::endl;
-            size_t index_ = 0;
+    auto t = interval.lower;
+        auto cashflow = (t/t)*price(0,USD);//TODO describe cashflow as some function of time t
+            auto nav = make_tuple(t,cashflow,net_asset_value(interval));
+                time_point tau = reb_period * floor(t/reb_period); //tau is the previous portfolio rebalancing day
 
-
+    
+    
+    
+    if(tau<1){tau = 1;} //simulator gives first price at time 1 but tau begins at 0
     if(message->received < interval.lower){return interval.lower;}
-    if(nav_.value <= 0){return interval.upper;}
+    if(get<2>(nav).value <= 0){return interval.upper;}
     if(this->target_net_asset_value.has_value() && double(target_net_asset_value.value()) <= 1.){
         return interval.upper;}
 
 
-    //LOG(trace) << describe() << " " << identifier << " inventory " <<  inventory << std::endl;
-    std::map<identity<property>, double> earnings_;
+    
+    
+   //load earnings variable with current time point, tau and earnings at time tau
     for(auto [property_, quote_]: message->proposed) {
-            auto price_ = std::get<price>(quote_.type);
-                if(earnings_.end() != earnings_.find(property_->identifier)){
-                    earnings_.find(property_->identifier)->second = 12.0;//dummy earnings TODO link with actual earnings
+        auto price_ = std::get<price>(quote_.type);
+              auto e = data_earnings.find(property_->identifier)->second[tau-1];
+                    if(earnings_.end() != earnings_.find(property_->identifier)){
+                        get<0>(earnings_.find(property_->identifier)->second) = tau;
+                            get<1>(earnings_.find(property_->identifier)->second) = e;
                         }else{
-                            earnings_.emplace(property_->identifier, 12.0);//dummy earnings TODO link with actual earnings
-        }
+                            earnings_.emplace(property_->identifier,make_tuple(tau,e));
+
+                        }
 
     }
-    //std::cout<<"sharedetails"<< valuations_ <<std::endl;
+
+
+    
+    
     std::cout << "sending GITest" << std::endl;
         auto message_ = this->template create_message<GI>(
             message->sender, interval.lower, (*this), message->sender,
-                interval.lower, interval.lower,nav_, earnings_);
+                interval.lower, interval.lower,nav,earnings_);
 
-
+    
 
     message_->agression = this->aggression;
     message_->leverage = this->maximum_leverage;
+
+
 
 
     for(auto [p,q]: inventory){
@@ -157,8 +186,6 @@ GIAgent::invest(shared_ptr<quote_message> message, time_interval interval, seed_
     }
 
 
-
     return interval.lower;
 }
-
 
