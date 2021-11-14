@@ -27,53 +27,53 @@ using esl::identity;
 using namespace esl;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Excess Demand Function
+//sing sxtraction function
 template <typename T> int sgn(T val) {
     return (T(0) < val) - (val < T(0));
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Excess Demand Function
 map<identity<law::property>, esl::variable>
 GI::excess_demand(
         const std::map<identity<law::property>,
                 tuple<markets::quote, esl::variable>> &quotes)const{
 
-
-    //print statement to test if clearer is reaching this point
-    std::cout<< "trading 0" <<std::endl;
+    
+    
+//Params definition
         map<esl::identity<property>, esl::variable> result_;
             time_point t = get<0>(net_asset_value);
                 double cashflow_ = double(get<1>(net_asset_value)),
                     nav_ = double(get<2>(net_asset_value)),
                         Beta = log10(9.0),//dummy threshold TODO: link this variable with actual earnings
-                             portfolio_alloc = 0.6,
+                             portfolio_alloc = 0.6,// wealth allocated to stock potfolio
                                 sum_of_signals,
-                                    phi;//signal
+                                    phi;//trading signal for stock i
 
+    
+  
 
+//compute a sum of exponents of signals, see McFadden choice function...........................(1)
     for(auto &[k, v] : quotes){
         const auto &[quote_, variable_] = v;
             const auto quoted_price_ = double(get<price>(quote_.type));
-                phi = (log10(double(quoted_price_)/get<1>(earnings.find(k)->second)) - Beta);
+                phi = (log10(double(quoted_price_)/get<1>(earnings.find(k)->second)) - Beta);//stock signal
                     sum_of_signals = sum_of_signals + exp(pow(phi,2));}
 
 
 
-
+    
+//compute the ratio of each stock's exponent signal relative to sum described in (1)
     for(auto &[k, v] : quotes){
-
         const auto &[quote_, variable_] = v;
             const auto quoted_price_ = double(get<price>(quote_.type));
                 phi = (log10(double(quoted_price_)/get<1>(earnings.find(k)->second)) - Beta);
-                    auto stock_alloc = sgn(phi) * exp(pow(phi,2)) /sum_of_signals;
+                    auto stock_alloc = sgn(phi) * exp(pow(phi,2)) /sum_of_signals;//stock wealth allocation
 
-                                //print statement to test if clearer is reaching this point
-
-
-
-
-
+                        
+//investment in the subject stock
         auto i = earnings.find(k);
-        std::cout<<"*****"<<get<0>(i->second)<<t<<std::endl;
         if (earnings.end() != i) {
             auto tau_earnings = i->second;
             auto j = this->supply.find(k);
@@ -126,9 +126,9 @@ GIAgent::invest(shared_ptr<quote_message> message, time_interval interval, seed_
     
     
     
-    if(tau<1){tau = 1;} //simulator gives first price at time 1 but tau begins at 0
+    if(tau<1){tau = 1;} //manually match beginning tau to simulator's beginning time point [where tau would be 0 we set both values to 1]
     if(message->received < interval.lower){return interval.lower;}
-    if(get<2>(nav).value <= 0){return interval.upper;}
+    if(get<2>(nav).value <= 0){return interval.upper;}//nav is a tuple with net_asset value at index 2
     if(this->target_net_asset_value.has_value() && double(target_net_asset_value.value()) <= 1.){
         return interval.upper;}
 
