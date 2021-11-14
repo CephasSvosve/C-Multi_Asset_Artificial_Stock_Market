@@ -78,7 +78,7 @@ VT::excess_demand(
     for(auto &[k, v] : quotes){
         const auto &[quote_, variable_] = v;
             const auto quoted_price_ = double(get<price>(quote_.type));
-                phi = (log10(double(quoted_price_)/get<1>(earnings.find(k)->second)) - Beta);//stock signal
+                phi = -(log10(double(quoted_price_)/get<1>(earnings.find(k)->second)) - Beta);//stock signal
                     sum_of_signals = sum_of_signals + exp(pow(phi,2));}
 
 
@@ -88,7 +88,7 @@ VT::excess_demand(
     for(auto &[k, v] : quotes){
         const auto &[quote_, variable_] = v;
             const auto quoted_price_ = double(get<price>(quote_.type));
-                phi = (log10(double(quoted_price_)/get<1>(earnings.find(k)->second)) - Beta);
+                phi = -(log10(double(quoted_price_)/get<1>(earnings.find(k)->second)) - Beta);
                     auto stock_alloc = sgn(phi) * exp(pow(phi,2)) /sum_of_signals;//stock wealth allocation
 
        
