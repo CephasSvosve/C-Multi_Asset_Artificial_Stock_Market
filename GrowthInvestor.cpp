@@ -71,7 +71,9 @@ GI::excess_demand(
                 phi = (log10(double(quoted_price_)/get<1>(earnings.find(k)->second)) - Beta);
                     auto stock_alloc = sgn(phi) * exp(pow(phi,2)) /sum_of_signals;//stock wealth allocation
 
-                        
+       
+        
+        
 //investment in the subject stock
         auto i = earnings.find(k);
         if (earnings.end() != i) {
