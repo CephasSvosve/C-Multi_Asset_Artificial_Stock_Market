@@ -25,7 +25,6 @@
 
 #include "ValueInvestor.h"
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 using std::make_tuple;
 using std::shared_ptr;
@@ -48,77 +47,91 @@ using esl::identity;
 using namespace esl;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//sign extraction function
-
+//sing sxtraction function
 template <typename T> int sgn(T val) {
     return (T(0) < val) - (val < T(0));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Excess Demand Function
-
 map<identity<law::property>, esl::variable>
 VT::excess_demand(
         const std::map<identity<law::property>,
                 tuple<markets::quote, esl::variable>> &quotes)const{
 
+    
+    
+//Params definition
+        map<esl::identity<property>, esl::variable> result_;
+            time_point t = get<0>(net_asset_value);
+                double cashflow_ = double(get<1>(net_asset_value)),
+                    nav_ = double(get<2>(net_asset_value)),
+                        Beta = log10(9.0),//dummy threshold TODO: link this variable with actual earnings
+                             portfolio_alloc = 0.6,// wealth allocated to stock potfolio
+                                sum_of_signals,
+                                    phi;//trading signal for stock i
 
-    //print statement to test if clearer is reaching this point
-    std::cout<< "trading 0" <<std::endl;
-    map<esl::identity<property>, esl::variable> result_;
-             double nav_ = double(net_asset_value),
-                Beta = log10(9.0),//dummy threshold TODO: link this variable with actual earnings
-                    sum_of_signals,
-                        phi;//signal
+    
+  
 
-
-    for(auto &[k, v] : quotes){
-            const auto &[quote_, variable_] = v;
-                const auto quoted_price_ = double(get<price>(quote_.type));
-                    phi = -(log10(double(quoted_price_)/earnings.find(k)->second) - Beta);
-                        sum_of_signals = sum_of_signals + exp(pow(phi,2));}
-
-
-
-
+//compute a sum of exponents of signals, see McFadden choice function...........................(1)
     for(auto &[k, v] : quotes){
         const auto &[quote_, variable_] = v;
             const auto quoted_price_ = double(get<price>(quote_.type));
-                phi = -(log10(double(quoted_price_)/earnings.find(k)->second) - Beta);
-                    auto scale_ = sgn(phi) * exp(pow(phi,2)) / sum_of_signals;
-                            auto i = earnings.find(k);
+                phi = (log10(double(quoted_price_)/get<1>(earnings.find(k)->second)) - Beta);//stock signal
+                    sum_of_signals = sum_of_signals + exp(pow(phi,2));}
 
 
 
+    
+//compute the ratio of each stock's exponent signal relative to sum described in (1)
+    for(auto &[k, v] : quotes){
+        const auto &[quote_, variable_] = v;
+            const auto quoted_price_ = double(get<price>(quote_.type));
+                phi = (log10(double(quoted_price_)/get<1>(earnings.find(k)->second)) - Beta);
+                    auto stock_alloc = sgn(phi) * exp(pow(phi,2)) /sum_of_signals;//stock wealth allocation
 
-        if(earnings.end() != i){
-            auto value_ = double(i->second);
-                auto j = this->supply.find(k);
-                    if(supply.end() == j){
-                        result_.emplace(k,  nav_*scale_/(quoted_price_ * variable_));
-                            }else{//print statement to test if clearer is reaching this point
-                                std::cout<< nav_<<"this is fund NAV" <<net_asset_value<<std::endl;
-                                    std::cout<< "trading 3" <<std::endl;
-                                        auto supply_long_ = double(std::get<0>(j->second));
-                                            auto supply_short_ = double(std::get<1>(j->second));
-                                                result_.emplace(k,  (double(net_asset_value)*scale_/(quoted_price_ * variable_))-
-                                                    - (supply_long_ - supply_short_) * (quoted_price_ * variable_));
+       
+        
+        
+//investment in the subject stock
+        auto i = earnings.find(k);
+        if (earnings.end() != i) {
+            auto tau_earnings = i->second;
+            auto j = this->supply.find(k);
+            if (supply.end() == j) {
+                if (get<0>(tau_earnings) == t) {
+                    result_.emplace(k, nav_ * stock_alloc * portfolio_alloc / (quoted_price_ * variable_));
+                }
+                else {
+                    result_.emplace(k, cashflow_ * stock_alloc * portfolio_alloc / quoted_price_ * variable_);
+                }
+            }
+            else {  auto supply_long_ = double(std::get<0>(j->second));
+                    auto supply_short_ = double(std::get<1>(j->second));
+                    if (get<0>(tau_earnings) == t) {result_.emplace(k, (nav_ * stock_alloc * portfolio_alloc /
+                                  (quoted_price_ * variable_)) - (supply_long_ - supply_short_) * (quoted_price_ * variable_));
+                }
+                else {result_.emplace(k, cashflow_ * stock_alloc * portfolio_alloc / (quoted_price_ *
+                                       variable_) +(supply_long_ - supply_short_) * (quoted_price_ * variable_));
+                }
             }
         }
     }
-    std::cout<< "result"<<result_ <<std::endl;
+
 
     return result_;
 }
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Trend Agent Constructor
 
-VTAgent::VTAgent(const identity<fund> &i, const jurisdiction &j, size_t window)
-            :agent(i)
-                ,owner<cash>(i)
-                    ,owner<stock>(i)
-                        ,fund(i, j)
-                            ,window(window)
+VTAgent::VTAgent(const identity<fund> &i, const jurisdiction &j)
+        :agent(i)
+            ,owner<cash>(i)
+                ,owner<stock>(i)
+                    ,fund(i, j)
 {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -127,80 +140,74 @@ VTAgent::VTAgent(const identity<fund> &i, const jurisdiction &j, size_t window)
 time_point
 VTAgent::invest(shared_ptr<quote_message> message, time_interval interval, seed_seq &seed)
 {
-    vector<tuple<identity<property>, double, size_t, double>> trends_;
-        auto nav_ = net_asset_value(interval);
-            std::cout<<"NAV interval"<<nav_<<std::endl;
-                time_duration window_ = window;
-                    size_t index_ = 0;
+    auto t = interval.lower;
+        auto cashflow = (t/t)*price(0,USD);//TODO describe cashflow as some function of time t
+            auto nav = make_tuple(t,cashflow,net_asset_value(interval));
+                time_point tau = reb_period * floor(t/reb_period); //tau is the previous portfolio rebalancing day
 
-
+    
+    
+    
+    if(tau<1){tau = 1;} //manually match beginning tau to simulator's beginning time point [where tau would be 0 we set both values to 1]
     if(message->received < interval.lower){return interval.lower;}
-    if(nav_.value <= 0){return interval.upper;}
+    if(get<2>(nav).value <= 0){return interval.upper;}//nav is a tuple with net_asset value at index 2
     if(this->target_net_asset_value.has_value() && double(target_net_asset_value.value()) <= 1.){
         return interval.upper;}
 
 
-    //LOG(trace) << describe() << " " << identifier << " inventory " <<  inventory << std::endl;
-    std::map<identity<property>, double> earnings_;
+    
+    
+//load earnings variable with current time point, tau and earnings at time tau
     for(auto [property_, quote_]: message->proposed) {
-
         auto price_ = std::get<price>(quote_.type);
+              auto e = data_earnings.find(property_->identifier)->second[tau-1];
+                    if(earnings_.end() != earnings_.find(property_->identifier)){
+                        get<0>(earnings_.find(property_->identifier)->second) = tau;
+                            get<1>(earnings_.find(property_->identifier)->second) = e;
+                        }else{
+                            earnings_.emplace(property_->identifier,make_tuple(tau,e));
 
-
-        if(earnings_.end() != earnings_.find(property_->identifier)){
-            earnings_.find(property_->identifier)->second = 12.0;//dummy earnings TODO link with actual earnings
-        }else{
-            
-            earnings_.emplace(property_->identifier, 12.0);//dummy earnings TODO link with actual earnings
-            
-            
-            
-      //TODO extract a stock's shares_outstanding
-            identity<property> t;
-               t = property_->identifier;
-                   auto a= market_data.shares_outstanding[t];
-                      std::cout<<"shares_outstanding for stock "<< t <<" are " << double(a)<<std::endl;
-
-        }
+                        }
 
     }
-    //std::cout<<"sharedetails"<< valuations_ <<std::endl;
-    std::cout << "sending VTTest" << std::endl;
-    auto message_ = this->template create_message<VT>(
+
+
+    
+    
+    std::cout << "sending GITest" << std::endl;
+        auto message_ = this->template create_message<VT>(
             message->sender, interval.lower, (*this), message->sender,
-            interval.lower, interval.lower,nav_, earnings_);
+                interval.lower, interval.lower,nav,earnings_);
 
-
+    
 
     message_->agression = this->aggression;
     message_->leverage = this->maximum_leverage;
 
 
+
+
     for(auto [p,q]: inventory){
         auto cast_ = std::dynamic_pointer_cast<stock>(p);
-        if(cast_){
-            if(0 == q.amount){
-                continue;
-            }
-            message_->supply.emplace(p->identifier, std::make_tuple(q, quantity(0)));
-        }else{
-            auto cast2_ = std::dynamic_pointer_cast<securities_lending_contract>(p);
-            if(cast2_){
+            if(cast_){
                 if(0 == q.amount){
-                    continue;
-                }
-                if(message_->supply.end() != message_->supply.find(cast2_->security)){
-                    std::get<1>( message_->supply.find(cast2_->security)->second ) = q;
-                }else{
-                    message_->supply.emplace(cast2_->security, std::make_tuple(quantity(0), q));
+                    continue;}
+                        message_->supply.emplace(p->identifier, std::make_tuple(q, quantity(0)));
+                            }else{
+                                auto cast2_ = std::dynamic_pointer_cast<securities_lending_contract>(p);
+                                    if(cast2_){
+                                        if(0 == q.amount){
+                                            continue;}
+                                                if(message_->supply.end() != message_->supply.find(cast2_->security)){
+                                                    std::get<1>( message_->supply.find(cast2_->security)->second ) = q;
+                                                        }else{
+                                                            message_->supply.emplace(cast2_->security, std::make_tuple(quantity(0), q));
                 }
             }
         }
     }
 
 
-
     return interval.lower;
 }
-
 
