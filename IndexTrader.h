@@ -36,37 +36,39 @@ public:
 
     //params
     std::map<identity<law::property>, std::tuple<time_point, double>> market_cap;
-          std::tuple<price, price> net_asset_value;
-                time_interval interval;
-                    double agression;
-                          double leverage;
+        std::tuple<time_point, price, price> net_asset_value;
+            time_interval interval;
+                double agression;
+                    double leverage;
 
 
     //constructor
     Index(const identity<agent> &sender
             , const identity<agent> &recipient
-                    , simulation::time_point sent     = simulation::time_point()
-                          , simulation::time_point received = simulation::time_point()
-                                , std::tuple<price, price> nav = std::make_tuple(price(0, USD),price(0, USD))
-                                      , std::map<identity<law::property>, std::tuple<time_point, double>> market_cap = {}
-                                            ,time_interval interval= {})
-            
+                , simulation::time_point sent = simulation::time_point()
+                    , simulation::time_point received = simulation::time_point()
+                        , std::tuple<time_point, price, price> nav = std::make_tuple(0,price(0, USD),price(0, USD))
+                            , std::map<identity<law::property>, std::tuple<time_point, double>> market_cap = {}
+                                ,time_interval interval= {})
+
+
             :differentiable_order_message(sender, recipient, sent, received)
-                    ,market_cap(market_cap)
-                        ,net_asset_value(nav)
-                                ,interval(interval){}
+                ,market_cap(market_cap)
+                    ,net_asset_value(nav)
+                        ,interval(interval){}
+
 
 
 
     std::map<identity<law::property>, variable>
-            excess_demand(
-                    const std::map<identity<law::property>
+        excess_demand(
+            const std::map<identity<law::property>
                     ,std::tuple<economics::markets::quote, variable>> &quotes) const override;
 
     template<class archive_t>
-      void serialize(archive_t &archive, const unsigned int version){
-        (void)version;
-          archive &BOOST_SERIALIZATION_BASE_OBJECT_NVP(differentiable_order_message);
+        void serialize(archive_t &archive, const unsigned int version){
+            (void)version;
+                archive &BOOST_SERIALIZATION_BASE_OBJECT_NVP(differentiable_order_message);
     }
 };
 
@@ -80,15 +82,15 @@ public:
             ,const jurisdiction &j = esl::law::jurisdictions::US);
 
 
-    esl::law::property_map<std::map<time_point, price>> historic_prices;
+    std::map<identity<property>, std::map<time_point, price>> historic_prices;
         time_point reb_period=2;
 
-              time_point invest(std::shared_ptr<quote_message> message,
+            time_point invest(std::shared_ptr<quote_message> message,
                       time_interval interval, std::seed_seq &seed) override;
 
 
-                    [[nodiscard]] std::string describe() const override{
-                            return "Index trader";
+    [[nodiscard]] std::string describe() const override{
+        return "Index trader";
     }
 
 };
