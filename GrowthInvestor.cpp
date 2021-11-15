@@ -93,7 +93,7 @@ GI::excess_demand(
                                   (quoted_price_ * variable_)) - (supply_long_ - supply_short_) * (quoted_price_ * variable_));
                 }
                 else {result_.emplace(k, cashflow_ * stock_alloc * portfolio_alloc / (quoted_price_ *
-                                       variable_) +(supply_long_ - supply_short_) * (quoted_price_ * variable_));
+                                       variable_));
                 }
             }
         }
