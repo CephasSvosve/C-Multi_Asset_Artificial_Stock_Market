@@ -107,7 +107,7 @@ Index::excess_demand(
             if (market_distribution.end() != i) {
                 auto tau_market_cap = i->second;
                     auto j = this->supply.find(k);
-                        if (supply.end() == j) {
+                        if (supply.end() == j) {//continued
                             if (tau == t) {result_.emplace(k, nav_ * stock_alloc * portfolio_alloc/ (quoted_price_ * variable_));}
                                     else{result_.emplace(k, cashflow_ * stock_alloc * portfolio_alloc / (quoted_price_ * variable_));}}
                                         else {  auto supply_long_ = double(std::get<0>(j->second));
