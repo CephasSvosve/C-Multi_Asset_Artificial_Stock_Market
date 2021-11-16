@@ -42,13 +42,20 @@ void
                                         ,double starting_price){
 
 
+
+
     auto company_identifier_ = model_.template create_identifier<company>();
         // create a US company
                 auto company_ = std::make_shared<company>(company_identifier_, law::jurisdictions::US);
 
+
+
+
             // create a share issue for the company for several shares
                  auto main_issue_ = share_class();
                         company_->shares_outstanding[main_issue_] = shares_outstanding_;
+
+
 
 
                 // create stocks from the shares
@@ -56,10 +63,15 @@ void
                                 (void) quantity;
                                         auto stock_ = std::make_shared<stock>(*company_, share_);
 
+
+
+
                     // suggest to the market that $1.00 is the starting price
                         (*traded_assets).insert({stock_, quote(
                             price::approximate(starting_price, currencies::USD))});
                                 (*share_classes).emplace_back(make_tuple(company_, share_));
+
+
 
 
                         auto key_ = std::make_tuple<identity<company>, share_class>
@@ -68,18 +80,19 @@ void
                                                 (*properties).push_back(stock_);
                                                         fundamental(stock_->identifier,quantity, &make_shares_outstanding);
 
-
                 }
-
 }
 
+
+
 void
-        wealth_allocation(std::shared_ptr<fund> &p
-                    ,law::property_map<quote> traded_assets_
-                        ,double _cash_
-                            ,double stocks_){
-    
-    
+  wealth_allocation(std::shared_ptr<fund> &p
+              ,law::property_map<quote> traded_assets_
+                  ,double _cash_
+                      ,double stocks_){
+
+
+
     auto cash_ = std::make_shared<cash>(USD);
             for(const auto &[k, v]: traded_assets_){
                 (void) v;
