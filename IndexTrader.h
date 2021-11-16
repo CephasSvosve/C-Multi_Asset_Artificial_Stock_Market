@@ -62,6 +62,8 @@ public:
             double agression;
                 double leverage;
 
+
+
     //constructor
     TTest(const identity<agent> &sender
             , const identity<agent> &recipient
@@ -74,10 +76,14 @@ public:
                                         , net_asset_value(nav){}
 
 
+
+
     std::map<identity<law::property>, variable>
         excess_demand(
             const std::map<identity<law::property>,
                     std::tuple<economics::markets::quote, variable>>&quotes) const override;
+
+
 
 
     template<class archive_t>
