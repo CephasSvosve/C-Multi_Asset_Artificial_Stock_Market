@@ -1,9 +1,29 @@
-//
-// Created by Cephas Svosve on 11/11/2021.
-//
-
-#ifndef UNTITLED21_INDEXTRACKER_H
-#define UNTITLED21_INDEXTRACKER_H
+/// \file   momentum_investor.hpp
+///
+/// \brief
+///
+/// \authors    cephas and maarten
+/// \date       2020-02-13
+/// \copyright  Copyright 2017-2020 The Institute for New Economic Thinking,
+/// Oxford Martin School, University of Oxford
+///
+///             Licensed under the Apache License, Version 2.0 (the "License");
+///             you may not use this file except in compliance with the License.
+///             You may obtain a copy of the License at
+///
+///                 http://www.apache.org/licenses/LICENSE-2.0
+///
+///             Unless required by applicable law or agreed to in writing,
+///             software distributed under the License is distributed on an "AS
+///             IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+///             express or implied. See the License for the specific language
+///             governing permissions and limitations under the License.
+///
+///             You may obtain instructions to fulfill the attribution
+///             requirements in CITATION.cff
+///
+#ifndef ME_momentum_HPP
+#define ME_momentum_HPP
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include <esl/economics/markets/walras/differentiable_order_message.hpp>
@@ -29,42 +49,35 @@ using esl::economics::currencies::USD;
 using namespace esl;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct Index
+
+
+struct TTest
         : public differentiable_order_message
 {
 public:
 
     //params
-    std::map<identity<property>, std::tuple<time_point, price, double>> market_cap_data;
-        std::tuple<time_point, price, price> net_asset_value;
-            time_interval interval;
-                double agression;
-                    double leverage;
-
+    std::map<identity<property>, std::tuple<time_point,int,int,double,double>> trends;
+        std::tuple<time_point, price,price> net_asset_value;
+            double agression;
+                double leverage;
 
     //constructor
-    Index(const identity<agent> &sender
+    TTest(const identity<agent> &sender
             , const identity<agent> &recipient
                 , simulation::time_point sent     = simulation::time_point()
                     , simulation::time_point received = simulation::time_point()
-                        , std::tuple<time_point, price, price> nav = std::make_tuple(0,price(0, USD),price(0, USD))
-                            , std::map<identity<property>, std::tuple<time_point, price, double>> market_cap_data = {}
-                                ,time_interval interval= {})
-                                    :differentiable_order_message(sender, recipient, sent, received)
-                                        ,market_cap_data(market_cap_data)
-                                            ,net_asset_value(nav)
-                                                ,interval(interval){}
-
-
-
+                        , std::tuple<time_point, price,price> nav = {0,price(0, USD),price(0, USD)}
+                            , std::map<identity<property>, std::tuple<time_point,int,int,double,double>> trends = {})
+                                : differentiable_order_message(sender, recipient, sent, received)
+                                    , trends(trends)
+                                        , net_asset_value(nav){}
 
 
     std::map<identity<law::property>, variable>
         excess_demand(
-            const std::map<identity<law::property>
-                    ,std::tuple<economics::markets::quote, variable>> &quotes) const override;
-
-
+            const std::map<identity<law::property>,
+                    std::tuple<economics::markets::quote, variable>>&quotes) const override;
 
 
     template<class archive_t>
@@ -76,25 +89,28 @@ public:
 
 
 
-class IndexAgent
+class TrendAgent
         : public fund
 {
 public:
-    explicit IndexAgent( const esl::identity<fund> &i
-            ,const jurisdiction &j = esl::law::jurisdictions::US);
+    explicit TrendAgent( const esl::identity<fund> &i
+            ,const jurisdiction &j = esl::law::jurisdictions::US
+                ,size_t window = 3);
+
+    /// theta - 1
+    size_t window;
+        std::map<identity<property>, std::map<time_point, price>> historic_prices;
+            time_point reb_period=1;
 
 
-    std::map<identity<property>, std::map<time_point, price>> historic_prices;
-        time_point reb_period=2;
-
-                time_point invest(std::shared_ptr<quote_message> message,
+    time_point invest(std::shared_ptr<quote_message> message,
                       time_interval interval, std::seed_seq &seed) override;
 
 
     [[nodiscard]] std::string describe() const override{
-        return "Index trader";
+        return "Momentum_Investor";
     }
 
 };
 
-#endif //UNTITLED21_INDEXTRACKER_H
+#endif  // ME_momentum_HPP
