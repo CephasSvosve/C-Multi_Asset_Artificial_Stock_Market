@@ -35,7 +35,7 @@ struct Index
 public:
 
     //params
-    std::map<identity<law::property>, std::tuple<time_point, double>> market_cap;
+    std::map<identity<property>, std::tuple<time_point, price, double>> market_cap_data;
         std::tuple<time_point, price, price> net_asset_value;
             time_interval interval;
                 double agression;
@@ -45,17 +45,16 @@ public:
     //constructor
     Index(const identity<agent> &sender
             , const identity<agent> &recipient
-                , simulation::time_point sent = simulation::time_point()
+                , simulation::time_point sent     = simulation::time_point()
                     , simulation::time_point received = simulation::time_point()
                         , std::tuple<time_point, price, price> nav = std::make_tuple(0,price(0, USD),price(0, USD))
-                            , std::map<identity<law::property>, std::tuple<time_point, double>> market_cap = {}
+                            , std::map<identity<property>, std::tuple<time_point, price, double>> market_cap_data = {}
                                 ,time_interval interval= {})
+                                    :differentiable_order_message(sender, recipient, sent, received)
+                                        ,market_cap_data(market_cap_data)
+                                            ,net_asset_value(nav)
+                                                ,interval(interval){}
 
-
-            :differentiable_order_message(sender, recipient, sent, received)
-                ,market_cap(market_cap)
-                    ,net_asset_value(nav)
-                        ,interval(interval){}
 
 
 
@@ -64,6 +63,9 @@ public:
         excess_demand(
             const std::map<identity<law::property>
                     ,std::tuple<economics::markets::quote, variable>> &quotes) const override;
+
+
+
 
     template<class archive_t>
         void serialize(archive_t &archive, const unsigned int version){
@@ -85,7 +87,7 @@ public:
     std::map<identity<property>, std::map<time_point, price>> historic_prices;
         time_point reb_period=2;
 
-            time_point invest(std::shared_ptr<quote_message> message,
+                time_point invest(std::shared_ptr<quote_message> message,
                       time_interval interval, std::seed_seq &seed) override;
 
 
