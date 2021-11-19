@@ -75,7 +75,6 @@ void Div::setAutoCorr(double x)
 
 
 
-
 //work-in-progress-*the function is meant to retrieve the cross-sectional correlation from the market object 
 
 void Div::setCrossCorr()
