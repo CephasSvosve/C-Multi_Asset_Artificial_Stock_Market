@@ -165,7 +165,6 @@ MatrixXd Div::verticallyWhiten(MatrixXd mx)
 
 
 
-
 //this function calculates the coefficient of determination -correlation- between two vectors
 //it requires the two vectors x and y, then computes the variables required for the formula
 //i.e. variables xx = x^2  ,xy = x*y  and yy = y^2
