@@ -2,8 +2,8 @@
 ///
 /// \brief
 ///
-/// \authors    maarten
-/// \date       2020-01-20
+/// \authors    cephas and maarten
+/// \date       2021-11-20
 /// \copyright  Copyright 2017-2020 The Institute for New Economic Thinking, Oxford Martin School, University of Oxford
 ///
 ///             Licensed under the Apache License, Version 2.0 (the "License");
