@@ -2,8 +2,8 @@
 ///
 /// \brief
 ///
-/// \authors    Maarten P. Scholl
-/// \date       2020-01-31
+/// \authors    Cephas Maarten P. Scholl
+/// \date       2021-10-31
 /// \copyright  Copyright 2017-2020 The Institute for New Economic Thinking,
 ///             Oxford Martin School, University of Oxford
 ///
